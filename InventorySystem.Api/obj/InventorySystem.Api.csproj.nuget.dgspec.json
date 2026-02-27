@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jean Paul\\Documents\\Taller2\\InventorySystem.Api\\InventorySystem.Api.csproj": {}
+    "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\InventorySystem.Api\\InventorySystem.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jean Paul\\Documents\\Taller2\\InventorySystem.Api\\InventorySystem.Api.csproj": {
+    "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\InventorySystem.Api\\InventorySystem.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jean Paul\\Documents\\Taller2\\InventorySystem.Api\\InventorySystem.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\InventorySystem.Api\\InventorySystem.Api.csproj",
         "projectName": "InventorySystem.Api",
-        "projectPath": "C:\\Users\\Jean Paul\\Documents\\Taller2\\InventorySystem.Api\\InventorySystem.Api.csproj",
+        "projectPath": "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\InventorySystem.Api\\InventorySystem.Api.csproj",
         "packagesPath": "C:\\Users\\Jean Paul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jean Paul\\Documents\\Taller2\\InventorySystem.Api\\obj\\",
+        "outputPath": "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\InventorySystem.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
