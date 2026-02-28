@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { EmpresaProvider } from './context/EmpresaContext';
+import SeleccionEmpresa from './pages/empresas/SeleccionEmpresa.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import Productos from './pages/productos/Productos.tsx';
+import StockPage from './pages/stock/StockPage.tsx';
+import Kardex from './pages/movimientos/Kardex.tsx';
+import Documentos from './pages/documentos/Documentos.tsx';
+import DetalleDocumento from './pages/documentos/DetalleDocumento.tsx';
+import CrearDocumento from './pages/documentos/CrearDocumentos.tsx';
+import Layout from './components/Layout.tsx';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <EmpresaProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SeleccionEmpresa />} />
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/productos" element={<Productos />} />
+            <Route path="/stock" element={<StockPage />} />
+            <Route path="/kardex/:productoId" element={<Kardex />} />
+            <Route path="/documentos" element={<Documentos />} />
+            <Route path="/documentos/nuevo" element={<CrearDocumento />} />
+            <Route path="/documentos/:id" element={<DetalleDocumento />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </BrowserRouter>
+    </EmpresaProvider>
+  );
 }
 
-export default App
+export default App;
