@@ -17,7 +17,6 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Índices únicos
         modelBuilder.Entity<Producto>()
             .HasIndex(p => new { p.EmpresaId, p.Codigo })
             .IsUnique();
@@ -26,7 +25,6 @@ public class AppDbContext : DbContext
             .HasIndex(s => new { s.ProductoId, s.AlmacenId })
             .IsUnique();
 
-        // Tablas en snake_case (convención PostgreSQL)
         modelBuilder.Entity<Empresa>().ToTable("empresas");
         modelBuilder.Entity<Producto>().ToTable("productos");
         modelBuilder.Entity<Almacen>().ToTable("almacenes");

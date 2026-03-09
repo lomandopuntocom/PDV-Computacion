@@ -11,7 +11,6 @@ public class StockController : ControllerBase
     private readonly AppDbContext _db;
     public StockController(AppDbContext db) => _db = db;
 
-    // US-05: Stock total por producto
     [HttpGet]
     public async Task<IActionResult> GetStock([FromQuery] Guid empresaId)
     {
@@ -32,8 +31,7 @@ public class StockController : ControllerBase
             .ToListAsync();
         return Ok(stock);
     }
-
-    // US-02: resumen para dashboard
+    `
     [HttpGet("resumen")]
     public async Task<IActionResult> GetResumen([FromQuery] Guid empresaId)
     {
