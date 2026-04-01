@@ -1,22 +1,22 @@
-using InventorySystem.Api.Data;
+using Backend.Api.Modules.Shared.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace InventorySystem.Api.Controllers;
+namespace Backend.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class EmpresasController : ControllerBase
 {
-    private readonly AppDbContext _db;
-    public EmpresasController(AppDbContext db) => _db = db;
+    private readonly SharedDbContext _db;
+    public EmpresasController(SharedDbContext db) => _db = db;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var empresas = await _db.Empresas
             .Where(e => e.Activo)
-            .Select(e => new { e.Id, e.Nombre, e.Ruc })
+            .Select(e => new { e.Id, e.Nombre })
             .ToListAsync();
         return Ok(empresas);
     }

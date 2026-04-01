@@ -1,14 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { EmpresaProvider } from './context/EmpresaContext';
-import SeleccionEmpresa from './pages/empresas/SeleccionEmpresa.tsx';
-import Dashboard from './pages/Dashboard.tsx';
-import Productos from './pages/productos/Productos.tsx';
-import StockPage from './pages/stock/StockPage.tsx';
-import Kardex from './pages/movimientos/Kardex.tsx';
-import Documentos from './pages/documentos/Documentos.tsx';
-import DetalleDocumento from './pages/documentos/DetalleDocumento.tsx';
-import CrearDocumento from './pages/documentos/CrearDocumentos.tsx';
-import Layout from './components/Layout.tsx';
+import Layout from './components/Layout';
+import SeleccionEmpresa from './pages/empresas/SeleccionEmpresa';
+import Dashboard from './pages/dashboard/Dashboard';
+import Catalogo from './pages/catalogo/Catalogo';
+import StockPage from './pages/stock/StockPage';
+import PDV from './pages/pdv/PDV';
+import TicketDetalle from './pages/pdv/TicketDetalle';
+import KDS from './pages/kds/KDS';
 
 function App() {
   return (
@@ -18,12 +17,11 @@ function App() {
           <Route path="/" element={<SeleccionEmpresa />} />
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/productos" element={<Productos />} />
+            <Route path="/catalogo" element={<Catalogo />} />
             <Route path="/stock" element={<StockPage />} />
-            <Route path="/kardex/:productoId" element={<Kardex />} />
-            <Route path="/documentos" element={<Documentos />} />
-            <Route path="/documentos/nuevo" element={<CrearDocumento />} />
-            <Route path="/documentos/:id" element={<DetalleDocumento />} />
+            <Route path="/pdv" element={<PDV />} />
+            <Route path="/pdv/:id" element={<TicketDetalle />} />
+            <Route path="/kds" element={<KDS />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

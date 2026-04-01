@@ -10,21 +10,23 @@ export default function Layout() {
     navigate('/');
   };
 
+  const nav = [
+    { to: '/dashboard', label: '📊 Dashboard' },
+    { to: '/catalogo',  label: '📦 Catálogo' },
+    { to: '/stock',     label: '🏪 Stock' },
+    { to: '/pdv',       label: '🧾 PDV' },
+    { to: '/kds',       label: '👨‍🍳 Cocina / Bar' },
+  ];
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif' }}>
-      {/* Sidebar */}
       <aside style={{ width: 220, background: '#1e293b', color: 'white', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>EMPRESA ACTIVA</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>RESTAURANTE</div>
           <div style={{ fontWeight: 'bold', fontSize: 14 }}>{empresa?.nombre}</div>
         </div>
 
-        {[
-          { to: '/dashboard', label: '📊 Dashboard' },
-          { to: '/productos', label: '📦 Productos' },
-          { to: '/stock', label: '🏪 Stock' },
-          { to: '/documentos', label: '📋 Documentos' },
-        ].map(({ to, label }) => (
+        {nav.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
@@ -50,7 +52,6 @@ export default function Layout() {
         </button>
       </aside>
 
-      {/* Contenido */}
       <main style={{ flex: 1, padding: 32, background: '#f8fafc' }}>
         <Outlet />
       </main>

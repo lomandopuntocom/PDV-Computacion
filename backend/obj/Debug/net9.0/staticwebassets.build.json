@@ -1,8 +1,8 @@
 {
   "Version": 1,
-  "Hash": "cIfMoqP6zy2oUBDelAtb1JiHj68rTUP65lBcRfdbdyw=",
-  "Source": "InventorySystem.Api",
-  "BasePath": "_content/InventorySystem.Api",
+  "Hash": "iuYeoYwCGHQz/JIVm+ClcUbwsE0Hv9nDdnsKMk00XAI=",
+  "Source": "Backend.Api",
+  "BasePath": "_content/Backend.Api",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],

@@ -1,6 +1,6 @@
 [
   {
-    "ContainingType": "InventorySystem.Api.Controllers.AlmacenesController",
+    "ContainingType": "Backend.Api.Controllers.AlmacenesController",
     "Method": "GetAll",
     "RelativePath": "api/Almacenes",
     "HttpMethod": "GET",
@@ -16,7 +16,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.AlmacenesController",
+    "ContainingType": "Backend.Api.Controllers.AlmacenesController",
     "Method": "Crear",
     "RelativePath": "api/Almacenes",
     "HttpMethod": "POST",
@@ -25,14 +25,14 @@
     "Parameters": [
       {
         "Name": "req",
-        "Type": "InventorySystem.Api.Controllers.CrearAlmacenRequest",
+        "Type": "Backend.Api.Controllers.CrearAlmacenRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.DocumentosController",
+    "ContainingType": "Backend.Api.Controllers.DocumentosController",
     "Method": "GetAll",
     "RelativePath": "api/Documentos",
     "HttpMethod": "GET",
@@ -48,7 +48,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.DocumentosController",
+    "ContainingType": "Backend.Api.Controllers.DocumentosController",
     "Method": "Crear",
     "RelativePath": "api/Documentos",
     "HttpMethod": "POST",
@@ -57,14 +57,14 @@
     "Parameters": [
       {
         "Name": "req",
-        "Type": "InventorySystem.Api.Controllers.CrearDocumentoRequest",
+        "Type": "Backend.Api.Controllers.CrearDocumentoRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.DocumentosController",
+    "ContainingType": "Backend.Api.Controllers.DocumentosController",
     "Method": "GetById",
     "RelativePath": "api/Documentos/{id}",
     "HttpMethod": "GET",
@@ -80,7 +80,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.DocumentosController",
+    "ContainingType": "Backend.Api.Controllers.DocumentosController",
     "Method": "Confirmar",
     "RelativePath": "api/Documentos/{id}/confirmar",
     "HttpMethod": "POST",
@@ -96,7 +96,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.EmpresasController",
+    "ContainingType": "Backend.Api.Controllers.EmpresasController",
     "Method": "GetAll",
     "RelativePath": "api/Empresas",
     "HttpMethod": "GET",
@@ -106,7 +106,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.ImportController",
+    "ContainingType": "Backend.Api.Controllers.ImportController",
     "Method": "ImportarProductos",
     "RelativePath": "api/Import/productos/{empresaId}",
     "HttpMethod": "POST",
@@ -127,7 +127,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.MovimientosController",
+    "ContainingType": "Backend.Api.Controllers.MovimientosController",
     "Method": "GetKardex",
     "RelativePath": "api/Movimientos",
     "HttpMethod": "GET",
@@ -143,7 +143,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.MovimientosController",
+    "ContainingType": "Backend.Api.Controllers.MovimientosController",
     "Method": "Ajuste",
     "RelativePath": "api/Movimientos/ajuste",
     "HttpMethod": "POST",
@@ -152,14 +152,14 @@
     "Parameters": [
       {
         "Name": "req",
-        "Type": "InventorySystem.Api.Controllers.AjusteRequest",
+        "Type": "Backend.Api.Controllers.AjusteRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.ProductosController",
+    "ContainingType": "Backend.Api.Controllers.ProductosController",
     "Method": "GetByEmpresa",
     "RelativePath": "api/Productos",
     "HttpMethod": "GET",
@@ -175,7 +175,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.StockController",
+    "ContainingType": "Backend.Api.Controllers.StockController",
     "Method": "GetStock",
     "RelativePath": "api/Stock",
     "HttpMethod": "GET",
@@ -191,7 +191,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "InventorySystem.Api.Controllers.StockController",
+    "ContainingType": "Backend.Api.Controllers.StockController",
     "Method": "GetResumen",
     "RelativePath": "api/Stock/resumen",
     "HttpMethod": "GET",

@@ -1,32 +1,24 @@
-using InventorySystem.Api.Data;
+using Backend.Api.Modules.Shared.Data;
+using Backend.Api.Modules.Inventory.Data;
+using Backend.Api.Modules.Sales.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<SharedDbContext>(o => o.UseNpgsql(conn));
+builder.Services.AddDbContext<InventoryDbContext>(o => o.UseNpgsql(conn));
+builder.Services.AddDbContext<SalesDbContext>(o => o.UseNpgsql(conn));
 
 builder.Services.AddCors(options =>
-{
     options.AddPolicy("AllowFrontend", policy =>
         policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod());
-});
-
-builder.Services.AddControllers();
-builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
-});
+              .AllowAnyMethod()));
 
 var app = builder.Build();
-
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
