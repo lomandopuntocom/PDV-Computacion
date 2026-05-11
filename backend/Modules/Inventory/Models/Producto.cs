@@ -5,6 +5,7 @@ public class Producto
     public Guid Id { get; set; }
     public Guid EmpresaId { get; set; }
     public string Nombre { get; set; } = string.Empty;
+    public string CenCode { get; set; } = string.Empty; // Format: PRO-00001
     public Guid CategoriaId { get; set; }
     public Guid UnidadId { get; set; }
     public decimal Precio { get; set; }

@@ -19,8 +19,21 @@ public class InventoryDbContext : DbContext
         modelBuilder.Entity<Unidad>().ToTable("unidades");
         modelBuilder.Entity<Producto>().ToTable("productos");
 
+        // Unique constraints for CenCode
+        modelBuilder.Entity<Categoria>()
+            .HasIndex(c => new { c.EmpresaId, c.CenCode })
+            .IsUnique();
+
+        modelBuilder.Entity<Unidad>()
+            .HasIndex(u => new { u.EmpresaId, u.CenCode })
+            .IsUnique();
+
         modelBuilder.Entity<Producto>()
             .HasIndex(p => new { p.EmpresaId, p.Nombre })
+            .IsUnique();
+
+        modelBuilder.Entity<Producto>()
+            .HasIndex(p => new { p.EmpresaId, p.CenCode })
             .IsUnique();
 
         modelBuilder.Entity<Producto>()

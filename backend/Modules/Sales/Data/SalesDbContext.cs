@@ -39,8 +39,20 @@ public class SalesDbContext : DbContext
             .HasIndex(c => c.EmpresaId)
             .IsUnique();
 
+        modelBuilder.Entity<Estacion>()
+            .HasIndex(e => new { e.EmpresaId, e.CenCode })
+            .IsUnique();
+
         modelBuilder.Entity<Ticket>()
             .HasIndex(t => new { t.EmpresaId, t.Numero })
+            .IsUnique();
+
+        modelBuilder.Entity<Ticket>()
+            .HasIndex(t => new { t.EmpresaId, t.CenCode })
+            .IsUnique();
+
+        modelBuilder.Entity<Comanda>()
+            .HasIndex(c => new { c.EstacionId, c.CenCode })
             .IsUnique();
 
         modelBuilder.Entity<Pago>()

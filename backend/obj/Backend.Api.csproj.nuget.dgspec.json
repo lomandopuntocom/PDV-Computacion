@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\backend\\Backend.Api.csproj": {}
+    "C:\\Users\\Zerom\\OneDrive\\Documentos\\GitHub\\ISW-312-PROJ1\\backend\\Backend.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\backend\\Backend.Api.csproj": {
+    "C:\\Users\\Zerom\\OneDrive\\Documentos\\GitHub\\ISW-312-PROJ1\\backend\\Backend.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\backend\\Backend.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Zerom\\OneDrive\\Documentos\\GitHub\\ISW-312-PROJ1\\backend\\Backend.Api.csproj",
         "projectName": "Backend.Api",
-        "projectPath": "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\backend\\Backend.Api.csproj",
-        "packagesPath": "C:\\Users\\Jean Paul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jean Paul\\Documents\\Taller2\\ISW-312-PROJ1\\backend\\obj\\",
+        "projectPath": "C:\\Users\\Zerom\\OneDrive\\Documentos\\GitHub\\ISW-312-PROJ1\\backend\\Backend.Api.csproj",
+        "packagesPath": "C:\\Users\\Zerom\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Zerom\\OneDrive\\Documentos\\GitHub\\ISW-312-PROJ1\\backend\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Jean Paul\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Zerom\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -84,7 +78,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
