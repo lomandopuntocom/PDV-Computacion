@@ -1,0 +1,681 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Purchasing.API | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5229/"
+    }
+  ],
+  "paths": {
+    "/api/purchases/companies/{companyCen}/orders": {
+      "get": {
+        "tags": [
+          "PurchaseOrder"
+        ],
+        "summary": "Lista ordenes de compra",
+        "description": "Devuelve una lista paginada de ordenes de compra filtradas por estado.\nUsar para consultar el historial reciente o pendientes.",
+        "parameters": [
+          {
+            "name": "companyCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PurchaseStatus"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "sortDescending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultDtoOfPurchaseOrderListDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultDtoOfPurchaseOrderListDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultDtoOfPurchaseOrderListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "PurchaseOrder"
+        ],
+        "summary": "Crea una orden de compra",
+        "description": "Registra una nueva orden de compra con sus items.\nUsar antes de confirmar para que el inventario no se actualice todavia.",
+        "parameters": [
+          {
+            "name": "companyCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseOrderDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseOrderDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseOrderDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderSummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderSummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchases/companies/{companyCen}/orders/{orderCen}": {
+      "get": {
+        "tags": [
+          "PurchaseOrder"
+        ],
+        "summary": "Obtiene el detalle de una orden de compra",
+        "description": "Devuelve el detalle completo de una orden segun su CEN.\nUsar para ver productos, cantidades y totales antes de confirmar.",
+        "parameters": [
+          {
+            "name": "companyCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchases/companies/{companyCen}/orders/{orderCen}/confirm": {
+      "post": {
+        "tags": [
+          "PurchaseOrder"
+        ],
+        "summary": "Confirma una orden de compra",
+        "description": "Confirma la orden y registra el ingreso de stock.\nUsar cuando la compra se recepcione para actualizar existencias.\nIntegra con el API de Inventario para incrementar stock.",
+        "parameters": [
+          {
+            "name": "companyCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderConfirmationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderConfirmationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderConfirmationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchases/companies/{companyCen}/suppliers": {
+      "get": {
+        "tags": [
+          "Supplier"
+        ],
+        "summary": "Lista proveedores de una empresa",
+        "description": "Devuelve los proveedores disponibles para compras.\nUsar para poblar listas de seleccion en ordenes de compra.",
+        "parameters": [
+          {
+            "name": "companyCen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupplierDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupplierDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupplierDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreatePurchaseOrderDto": {
+        "required": [
+          "supplierCen",
+          "warehouseCen",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "supplierCen": {
+            "type": "string"
+          },
+          "warehouseCen": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePurchaseOrderItemDto"
+            }
+          }
+        }
+      },
+      "CreatePurchaseOrderItemDto": {
+        "required": [
+          "productCen",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "productCen": {
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResultDtoOfPurchaseOrderListDto": {
+        "required": [
+          "items",
+          "totalCount",
+          "totalPages",
+          "currentPage"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderListDto"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "currentPage": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PurchaseOrderConfirmationDto": {
+        "required": [
+          "orderCen",
+          "status",
+          "confirmedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "orderCen": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PurchaseStatus"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PurchaseOrderDetailDto": {
+        "required": [
+          "orderCen",
+          "status",
+          "createdAt",
+          "confirmedAt",
+          "supplierCen",
+          "warehouseCen",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "orderCen": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PurchaseStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confirmedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "supplierCen": {
+            "type": "string"
+          },
+          "warehouseCen": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderDetailItemDto"
+            }
+          }
+        }
+      },
+      "PurchaseOrderDetailItemDto": {
+        "required": [
+          "productCen",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "productCen": {
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PurchaseOrderListDto": {
+        "required": [
+          "orderCen",
+          "status",
+          "createdAt",
+          "confirmedAt",
+          "supplierCen",
+          "itemCount"
+        ],
+        "type": "object",
+        "properties": {
+          "orderCen": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PurchaseStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confirmedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "supplierCen": {
+            "type": "string"
+          },
+          "itemCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PurchaseOrderSummaryDto": {
+        "required": [
+          "orderCen",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "orderCen": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PurchaseStatus"
+          }
+        }
+      },
+      "PurchaseStatus": {
+        "type": "integer"
+      },
+      "SupplierDto": {
+        "required": [
+          "supplierCen",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "supplierCen": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "PurchaseOrder"
+    },
+    {
+      "name": "Supplier"
+    }
+  ]
+}

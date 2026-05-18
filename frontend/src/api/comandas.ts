@@ -1,5 +1,10 @@
-import api from './axios';
-export const enviarComanda = (ticketId: string) => api.post('/comandas', { ticketId }).then(r => r.data);
-export const getKds = (estacionId: string) => api.get(`/comandas/kds/${estacionId}`).then(r => r.data);
+import { salesApi } from './axios';
+
+export const enviarComanda = (ticketId: string) =>
+  salesApi.post(`/companies/${localStorage.getItem('companyCen') ?? ''}/tickets/${ticketId}/send`).then(r => r.data);
+
+export const getKds = (estacionId: string) =>
+  salesApi.get(`/companies/${localStorage.getItem('companyCen') ?? ''}/kds/teams/${estacionId}/items`).then(r => r.data);
+
 export const cambiarEstado = (itemId: string, estado: string) =>
-  api.patch(`/comandas/items/${itemId}/estado`, { estado }).then(r => r.data);
+  salesApi.patch(`/companies/${localStorage.getItem('companyCen') ?? ''}/kds/items/${itemId}/status`, { status: estado }).then(r => r.data);

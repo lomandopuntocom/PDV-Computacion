@@ -6,6 +6,7 @@ export default function Layout() {
   const navigate = useNavigate();
 
   const handleCambiarEmpresa = () => {
+    localStorage.removeItem('companyCen');
     setEmpresa(null);
     navigate('/');
   };

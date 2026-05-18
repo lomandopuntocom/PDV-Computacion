@@ -21,6 +21,7 @@ export default function SeleccionEmpresa() {
   }, []);
 
   const handleSeleccionar = (empresa: Empresa) => {
+    localStorage.setItem('companyCen', empresa.id);
     setEmpresa(empresa);
     navigate('/dashboard');
   };

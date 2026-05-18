@@ -63,7 +63,8 @@ export default function TicketDetalle() {
   const handleAgregarProducto = async (productoId: string) => {
     if (!id || ticket?.estado !== 'ABIERTO') return;
     try {
-      await agregarItem(id, { productoId, cantidad: 1 });
+      const producto = productos.find(p => p.id === productoId);
+      await agregarItem(id, { productoId, cantidad: 1, precioUnitario: producto?.precio ?? 0 });
       cargar();
     } catch (e: any) {
       setMensaje({ texto: e.response?.data ?? 'Error al agregar', tipo: 'error' });
