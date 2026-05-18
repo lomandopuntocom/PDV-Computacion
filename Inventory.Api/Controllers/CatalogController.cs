@@ -47,11 +47,15 @@ public sealed class CatalogController(InventoryDbContext db) : InventoryControll
         var company = await FindCompanyAsync(companyCen);
         if (company is null) return NotFound();
 
+        var categoryCode = string.IsNullOrWhiteSpace(request.Code)
+            ? await GenerateNextCodeAsync(company.Cen, "CAT", () => Db.Categories.CountAsync(x => x.CompanyCen == company.Cen))
+            : request.Code.Trim();
+
         var category = new Category
         {
             CompanyId = company.Id,
             CompanyCen = company.Cen,
-            Code = request.Code,
+            Code = categoryCode,
             Name = request.Name,
             Description = request.Description,
             Active = request.Active
@@ -96,9 +100,13 @@ public sealed class CatalogController(InventoryDbContext db) : InventoryControll
     [HttpPost("units")]
     public async Task<IActionResult> CreateUnit(UpsertUnitRequest request)
     {
+        var unitCode = string.IsNullOrWhiteSpace(request.Code)
+            ? await GenerateNextCodeAsync(Guid.Empty, "UNI", () => Db.UnitsMeasure.CountAsync())
+            : request.Code.Trim();
+
         var unit = new UnitMeasure
         {
-            Code = request.Code,
+            Code = unitCode,
             Name = request.Name,
             Abbreviation = request.Abbreviation,
             Active = request.Active

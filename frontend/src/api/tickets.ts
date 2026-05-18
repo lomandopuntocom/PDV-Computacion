@@ -32,7 +32,7 @@ export const getTicket = async (id: string) => {
     items: items.map((item: any) => ({
       id: item.cen,
       productoId: item.productCen,
-      producto: item.productCen,
+      producto: item.productCode ?? item.productCen,
       cantidad: item.quantity,
       precioUnitario: item.unitPrice,
       nota: item.notes,

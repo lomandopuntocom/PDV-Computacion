@@ -21,10 +21,22 @@ public sealed class StockController(InventoryDbContext db) : InventoryController
         if (TryParseCen(warehouseCen ?? string.Empty, out var warehouse)) query = query.Where(x => x.WarehouseCen == warehouse);
 
         var items = await query
-            .Select(x => new StockDto(x.ProductCen.ToString(), x.WarehouseCen.ToString(), x.Quantity, x.MinQuantity, x.Quantity <= x.MinQuantity))
+            .Join(Db.Products, s => s.ProductCen, p => p.Cen, (s, p) => new StockDto(
+                s.ProductCen.ToString(),
+                p.Code,
+                s.WarehouseCen.ToString(),
+                s.Quantity,
+                s.MinQuantity,
+                s.Quantity <= s.MinQuantity))
             .ToListAsync();
 
-        return Ok(items);
+        var stockedCens = items.Select(x => x.ProductCen).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var missing = await Db.Products
+            .Where(x => x.CompanyCen == company.Cen && x.TrackStock && !stockedCens.Contains(x.Cen.ToString()))
+            .Select(x => new StockDto(x.Cen.ToString(), x.Code, null, 0, 0, true))
+            .ToListAsync();
+
+        return Ok(items.Concat(missing).OrderBy(x => x.ProductCode).ToList());
     }
 
     [HttpPost("validate")]
@@ -49,6 +61,9 @@ public sealed class StockController(InventoryDbContext db) : InventoryController
     [HttpPost("adjustments")]
     public async Task<IActionResult> Adjust(string companyCen, StockAdjustmentRequest request)
     {
+        if (request.Quantity == 0 || request.Quantity != Math.Floor(request.Quantity))
+            return BadRequest("Quantity must be a non-zero whole number.");
+
         var delta = request.Quantity;
         var mutation = new StockMutationRequest(request.ProductCen, request.WarehouseCen, Math.Abs(delta), "ADJUSTMENT", request.Reason);
         return await Mutate(companyCen, mutation, delta, "ADJUSTMENT", delta >= 0 ? "IN" : "OUT");
@@ -102,7 +117,14 @@ public sealed class StockController(InventoryDbContext db) : InventoryController
         });
 
         await Db.SaveChangesAsync();
-        return Ok(new StockDto(stock.ProductCen.ToString(), stock.WarehouseCen.ToString(), stock.Quantity, stock.MinQuantity, stock.Quantity <= stock.MinQuantity));
+        var product = await Db.Products.FirstOrDefaultAsync(x => x.Cen == stock.ProductCen);
+        return Ok(new StockDto(
+            stock.ProductCen.ToString(),
+            product?.Code ?? stock.ProductCen.ToString(),
+            stock.WarehouseCen.ToString(),
+            stock.Quantity,
+            stock.MinQuantity,
+            stock.Quantity <= stock.MinQuantity));
     }
 
     private async Task<StockItem?> FindStockAsync(string companyCen, string productCen, string? warehouseCen)
@@ -120,32 +142,17 @@ public sealed class StockController(InventoryDbContext db) : InventoryController
         var product = await Db.Products.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen && x.Cen == productCen);
         if (product is null) return null;
 
-        Warehouse? warehouse = null;
+        Warehouse warehouse;
         if (TryParseCen(warehouseCen ?? string.Empty, out var requestedWarehouse))
-            warehouse = await Db.Warehouses.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen && x.Cen == requestedWarehouse);
-
-        warehouse ??= await Db.Warehouses.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen);
-        if (warehouse is null) return null;
-
-        var location = await Db.Locations.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen && x.Cen == warehouse.LocationCen);
-        if (location is null) return null;
-
-        var stock = new StockItem
         {
-            CompanyId = company.Id,
-            CompanyCen = company.Cen,
-            LocationId = location.Id,
-            LocationCen = location.Cen,
-            WarehouseId = warehouse.Id,
-            WarehouseCen = warehouse.Cen,
-            ProductId = product.Id,
-            ProductCen = product.Cen,
-            Quantity = 0,
-            MinQuantity = 0
-        };
+            var selected = await Db.Warehouses.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen && x.Cen == requestedWarehouse);
+            warehouse = selected ?? await EnsureDefaultWarehouseAsync(company);
+        }
+        else
+        {
+            warehouse = await EnsureDefaultWarehouseAsync(company);
+        }
 
-        Db.Stock.Add(stock);
-        await Db.SaveChangesAsync();
-        return stock;
+        return await EnsureStockRowAsync(company, product, warehouse);
     }
 }

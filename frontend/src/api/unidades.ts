@@ -7,7 +7,7 @@ export const getUnidades = (empresaId: string) =>
 
 export const crearUnidad = (data: { empresaId: string; nombre: string }) =>
   inventoryApi.post(`/companies/${data.empresaId}/units`, {
-    code: data.nombre.trim().toUpperCase().replace(/\s+/g, '_'),
+    code: '',
     name: data.nombre,
     abbreviation: data.nombre.slice(0, 3).toUpperCase(),
     active: true,

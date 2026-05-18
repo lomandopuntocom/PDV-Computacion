@@ -53,32 +53,45 @@ public sealed class TicketsController(SalesDbContext db, IInventoryCatalogClient
     }
 
     [HttpGet("{ticketCen}/items")]
-    public async Task<IActionResult> GetItems(string companyCen, string ticketCen)
+    public async Task<IActionResult> GetItems(string companyCen, string ticketCen, CancellationToken cancellationToken)
     {
         var ticket = await FindTicketAsync(companyCen, ticketCen);
         if (ticket is null) return NotFound();
 
+        var productCodes = await ResolveProductCodesAsync(companyCen, ticket.Items.Select(x => x.ProductCen.ToString()).ToList(), cancellationToken);
         var items = ticket.Items
-            .Select(x => new TicketItemDto(x.Cen.ToString(), x.ProductCen.ToString(), x.Quantity, x.UnitPrice, x.Status, x.Notes))
+            .Select(x => ToItemDto(x, productCodes))
             .ToList();
 
         return Ok(items);
     }
 
     [HttpPost("{ticketCen}/items")]
-    public async Task<IActionResult> AddItem(string companyCen, string ticketCen, AddTicketItemRequest request)
+    public async Task<IActionResult> AddItem(string companyCen, string ticketCen, AddTicketItemRequest request, CancellationToken cancellationToken)
     {
         var ticket = await FindTicketAsync(companyCen, ticketCen);
         if (ticket is null) return NotFound();
         if (ticket.Status != "OPEN") return Conflict("Ticket is not open.");
         if (!TryParseCen(request.ProductCen, out var productCen)) return BadRequest("Invalid product CEN.");
+        if (!TryNormalizeQuantity(request.Quantity, out var quantity, out var quantityError)) return BadRequest(quantityError);
+
+        var existing = ticket.Items.FirstOrDefault(x => x.ProductCen == productCen);
+        if (existing is not null)
+        {
+            existing.Quantity += quantity;
+            if (!string.IsNullOrWhiteSpace(request.Notes)) existing.Notes = request.Notes;
+            await Db.SaveChangesAsync();
+
+            var mergedCodes = await ResolveProductCodesAsync(companyCen, [existing.ProductCen.ToString()], cancellationToken);
+            return Ok(ToItemDto(existing, mergedCodes));
+        }
 
         var item = new TicketItem
         {
             TicketId = ticket.Id,
             TicketCen = ticket.Cen,
             ProductCen = productCen,
-            Quantity = request.Quantity,
+            Quantity = quantity,
             UnitPrice = request.UnitPrice,
             Notes = request.Notes,
             Status = "PENDING"
@@ -86,11 +99,13 @@ public sealed class TicketsController(SalesDbContext db, IInventoryCatalogClient
 
         Db.TicketItems.Add(item);
         await Db.SaveChangesAsync();
-        return Ok(new TicketItemDto(item.Cen.ToString(), item.ProductCen.ToString(), item.Quantity, item.UnitPrice, item.Status, item.Notes));
+
+        var productCodes = await ResolveProductCodesAsync(companyCen, [item.ProductCen.ToString()], cancellationToken);
+        return Ok(ToItemDto(item, productCodes));
     }
 
     [HttpPatch("{ticketCen}/items/{ticketItemCen}")]
-    public async Task<IActionResult> UpdateItem(string companyCen, string ticketCen, string ticketItemCen, UpdateTicketItemRequest request)
+    public async Task<IActionResult> UpdateItem(string companyCen, string ticketCen, string ticketItemCen, UpdateTicketItemRequest request, CancellationToken cancellationToken)
     {
         var ticket = await FindTicketAsync(companyCen, ticketCen);
         if (ticket is null || !TryParseCen(ticketItemCen, out var itemCen)) return NotFound();
@@ -98,12 +113,22 @@ public sealed class TicketsController(SalesDbContext db, IInventoryCatalogClient
         var item = ticket.Items.FirstOrDefault(x => x.Cen == itemCen);
         if (item is null) return NotFound();
 
-        item.Quantity = request.Quantity;
+        if (request.Quantity < 1)
+        {
+            Db.TicketItems.Remove(item);
+            await Db.SaveChangesAsync();
+            return NoContent();
+        }
+
+        if (!TryNormalizeQuantity(request.Quantity, out var quantity, out var quantityError)) return BadRequest(quantityError);
+
+        item.Quantity = quantity;
         item.Notes = request.Notes;
         item.Status = request.Status ?? item.Status;
         await Db.SaveChangesAsync();
 
-        return Ok(new TicketItemDto(item.Cen.ToString(), item.ProductCen.ToString(), item.Quantity, item.UnitPrice, item.Status, item.Notes));
+        var productCodes = await ResolveProductCodesAsync(companyCen, [item.ProductCen.ToString()], cancellationToken);
+        return Ok(ToItemDto(item, productCodes));
     }
 
     [HttpPost("{ticketCen}/items/{ticketItemCen}/resend")]
@@ -242,4 +267,34 @@ public sealed class TicketsController(SalesDbContext db, IInventoryCatalogClient
     }
 
     private static TicketDto ToDto(Ticket x) => new(x.Cen.ToString(), x.TicketNumber, x.Status, x.TableCode, x.VendorCen?.ToString(), x.Items.Count);
+
+    private async Task<Dictionary<string, string>> ResolveProductCodesAsync(
+        string companyCen,
+        IReadOnlyList<string> productCens,
+        CancellationToken cancellationToken)
+    {
+        var products = await inventoryClient.LookupProductsAsync(companyCen, productCens, cancellationToken);
+        return products.ToDictionary(x => x.Cen, x => x.Code, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static TicketItemDto ToItemDto(TicketItem item, IReadOnlyDictionary<string, string> productCodes)
+    {
+        var productCen = item.ProductCen.ToString();
+        var productCode = productCodes.TryGetValue(productCen, out var code) ? code : productCen;
+        return new TicketItemDto(item.Cen.ToString(), productCen, productCode, item.Quantity, item.UnitPrice, item.Status, item.Notes);
+    }
+
+    private static bool TryNormalizeQuantity(decimal quantity, out decimal normalized, out string? error)
+    {
+        if (quantity != Math.Floor(quantity) || quantity < 1)
+        {
+            normalized = 0;
+            error = "Quantity must be a positive whole number.";
+            return false;
+        }
+
+        normalized = quantity;
+        error = null;
+        return true;
+    }
 }

@@ -38,19 +38,34 @@ public sealed class PurchaseOrdersController(PurchasesDbContext db, IInventorySt
     [HttpPost]
     public async Task<IActionResult> CreateOrder(string companyCen, CreatePurchaseOrderRequest request)
     {
-        if (!TryParseCen(companyCen, out var company)) return NotFound();
+        if (!TryParseCen(companyCen, out var companyCenValue)) return NotFound();
+
+        var company = await ResolveCompanyAsync(companyCen);
+        if (company is null) return NotFound();
+
+        var supplierCode = (request.SupplierCen ?? request.Supplier ?? string.Empty).Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(supplierCode))
+            return BadRequest("Supplier code (supplierCen) is required.");
+
+        var supplier = await Db.Suppliers.FirstOrDefaultAsync(x =>
+            x.CompanyId == company.Id && x.Code == supplierCode && x.Active);
+
+        if (supplier is null)
+            return BadRequest($"Supplier '{supplierCode}' was not found. Register it in suppliers first.");
 
         var order = new PurchaseOrder
         {
-            CompanyCen = company,
-            Supplier = request.Supplier,
-            SupplierCen = TryParseCen(request.SupplierCen ?? string.Empty, out var supplier) ? supplier : null,
+            CompanyId = company.Id,
+            CompanyCen = companyCenValue,
+            Supplier = supplier.Name,
+            SupplierCen = null,
             Status = "DRAFT"
         };
 
         foreach (var item in request.Items)
         {
             if (!TryParseCen(item.ProductCen, out var productCen)) continue;
+            if (item.Quantity != Math.Floor(item.Quantity) || item.Quantity < 1) continue;
 
             order.Items.Add(new PurchaseOrderItem
             {
@@ -59,6 +74,9 @@ public sealed class PurchaseOrdersController(PurchasesDbContext db, IInventorySt
                 Quantity = item.Quantity
             });
         }
+
+        if (order.Items.Count == 0)
+            return BadRequest("At least one valid item with a positive whole quantity is required.");
 
         Db.Orders.Add(order);
         await Db.SaveChangesAsync();
@@ -86,6 +104,20 @@ public sealed class PurchaseOrdersController(PurchasesDbContext db, IInventorySt
         }
 
         order.Status = "CONFIRMED";
+        order.UpdatedAt = DateTime.UtcNow;
+        await Db.SaveChangesAsync();
+        return Ok(ToDetail(order));
+    }
+
+    [HttpPost("{orderCen}/cancel")]
+    public async Task<IActionResult> Cancel(string companyCen, string orderCen)
+    {
+        var order = await FindOrderAsync(companyCen, orderCen);
+        if (order is null) return NotFound();
+        if (order.Status == "CONFIRMED") return Conflict("Confirmed orders cannot be cancelled.");
+        if (order.Status == "CANCELLED") return Conflict("Order is already cancelled.");
+
+        order.Status = "CANCELLED";
         order.UpdatedAt = DateTime.UtcNow;
         await Db.SaveChangesAsync();
         return Ok(ToDetail(order));

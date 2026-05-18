@@ -5,6 +5,7 @@ export const getProductos = (empresaId: string, categoriaId?: string, buscar?: s
     .then(r => r.data.items.map((p: any) => ({
       id: p.cen,
       cen: p.cen,
+      codigo: p.code,
       nombre: p.name,
       precio: p.price,
       categoria: p.categoryCen ?? '',
@@ -19,7 +20,7 @@ export const getProductos = (empresaId: string, categoriaId?: string, buscar?: s
 
 export const crearProducto = (data: any) =>
   inventoryApi.post(`/companies/${data.empresaId}/products`, {
-    code: data.nombre.trim().toUpperCase().replace(/\s+/g, '_'),
+    code: '',
     sku: data.nombre.trim().toUpperCase().replace(/\s+/g, '-'),
     name: data.nombre,
     categoryCen: data.categoriaId,

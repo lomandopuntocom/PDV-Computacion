@@ -31,6 +31,24 @@ public sealed class InventoryCatalogClient(HttpClient httpClient) : IInventoryCa
             cancellationToken);
     }
 
+    public async Task<IReadOnlyList<CatalogProductDto>> LookupProductsAsync(
+        string companyCen,
+        IReadOnlyList<string> productCens,
+        CancellationToken cancellationToken)
+    {
+        if (productCens.Count == 0) return Array.Empty<CatalogProductDto>();
+
+        var response = await httpClient.PostAsJsonAsync(
+            $"/api/inventory/companies/{companyCen}/products/lookup",
+            new { productCens },
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode) return Array.Empty<CatalogProductDto>();
+
+        return await response.Content.ReadFromJsonAsync<IReadOnlyList<CatalogProductDto>>(cancellationToken)
+            ?? Array.Empty<CatalogProductDto>();
+    }
+
     public async Task<bool> ConsumeStockAsync(string companyCen, string productCen, decimal quantity, CancellationToken cancellationToken)
     {
         var response = await httpClient.PostAsJsonAsync(

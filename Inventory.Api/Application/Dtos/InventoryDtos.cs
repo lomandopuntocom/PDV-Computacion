@@ -21,7 +21,7 @@ public sealed record ProductDto(
     bool Active,
     string? StationCode);
 
-public sealed record StockDto(string ProductCen, string? WarehouseCen, decimal Quantity, decimal MinQuantity, bool LowStock);
+public sealed record StockDto(string ProductCen, string ProductCode, string? WarehouseCen, decimal Quantity, decimal MinQuantity, bool LowStock);
 public sealed record InventoryDashboardDto(int ProductCount, int ActiveProductCount, int OutOfStockCount, int LowStockCount);
 public sealed record KardexMovementDto(string Cen, string ProductCen, decimal Quantity, decimal BalanceBefore, decimal BalanceAfter, string? Reference, string? Notes, DateTime CreatedAt);
 

@@ -73,11 +73,15 @@ public sealed class ProductsController(InventoryDbContext db) : InventoryControl
         var company = await FindCompanyAsync(companyCen);
         if (company is null) return NotFound();
 
+        var productCode = string.IsNullOrWhiteSpace(request.Code)
+            ? await GenerateNextCodeAsync(company.Cen, "PRO", () => Db.Products.CountAsync(x => x.CompanyCen == company.Cen))
+            : request.Code.Trim();
+
         var product = new Product
         {
             CompanyId = company.Id,
             CompanyCen = company.Cen,
-            Code = request.Code,
+            Code = productCode,
             Sku = request.Sku,
             Name = request.Name,
             Description = request.Description,
@@ -177,30 +181,9 @@ public sealed class ProductsController(InventoryDbContext db) : InventoryControl
 
     private async Task EnsureInitialStockAsync(Company company, Product product)
     {
-        var warehouse = await Db.Warehouses.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen && x.Active);
-        if (warehouse is null) return;
-
-        var location = await Db.Locations.FirstOrDefaultAsync(x => x.CompanyCen == company.Cen && x.Cen == warehouse.LocationCen);
-        if (location is null) return;
-
-        var exists = await Db.Stock.AnyAsync(x => x.CompanyCen == company.Cen && x.ProductCen == product.Cen && x.WarehouseCen == warehouse.Cen);
-        if (exists) return;
-
-        Db.Stock.Add(new StockItem
-        {
-            CompanyId = company.Id,
-            CompanyCen = company.Cen,
-            LocationId = location.Id,
-            LocationCen = location.Cen,
-            WarehouseId = warehouse.Id,
-            WarehouseCen = warehouse.Cen,
-            ProductId = product.Id,
-            ProductCen = product.Cen,
-            Quantity = 0,
-            MinQuantity = 0
-        });
-
-        await Db.SaveChangesAsync();
+        if (!product.TrackStock) return;
+        var warehouse = await EnsureDefaultWarehouseAsync(company);
+        await EnsureStockRowAsync(company, product, warehouse);
     }
 
     private static ProductDto ToDto(Product x)

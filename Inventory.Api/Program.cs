@@ -1,5 +1,6 @@
 using Inventory.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore; // 👈 Agregar
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // 👈 Agregar
 }
 
 app.UseCors("AllowFrontend");

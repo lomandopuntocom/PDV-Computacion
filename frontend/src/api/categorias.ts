@@ -7,7 +7,7 @@ export const getCategorias = (empresaId: string) =>
 
 export const crearCategoria = (data: { empresaId: string; nombre: string }) =>
   inventoryApi.post(`/companies/${data.empresaId}/categories`, {
-    code: data.nombre.trim().toUpperCase().replace(/\s+/g, '_'),
+    code: '',
     name: data.nombre,
     active: true,
   }).then(r => toCategoria(r.data));

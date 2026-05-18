@@ -20,7 +20,7 @@ interface TicketData {
 }
 
 interface Producto {
-  id: string; nombre: string; precio: number;
+  id: string; codigo: string; nombre: string; precio: number;
   categoriaId: string; agotado: boolean; activo: boolean;
 }
 
@@ -58,24 +58,40 @@ export default function TicketDetalle() {
   const productosFiltrados = productos
     .filter(p => p.activo && !p.agotado)
     .filter(p => filtroCategoria ? p.categoriaId === filtroCategoria : true)
-    .filter(p => p.nombre.toLowerCase().includes(buscar.toLowerCase()));
+    .filter(p => `${p.codigo} ${p.nombre}`.toLowerCase().includes(buscar.toLowerCase()));
 
   const handleAgregarProducto = async (productoId: string) => {
     if (!id || ticket?.estado !== 'ABIERTO') return;
     try {
+      const existente = ticket?.items.find(i => i.productoId === productoId);
       const producto = productos.find(p => p.id === productoId);
+      if (existente) {
+        await handleActualizarItem(existente.id, existente.cantidad + 1, existente.nota);
+        return;
+      }
       await agregarItem(id, { productoId, cantidad: 1, precioUnitario: producto?.precio ?? 0 });
       cargar();
     } catch (e: any) {
-      setMensaje({ texto: e.response?.data ?? 'Error al agregar', tipo: 'error' });
+      const err = e.response?.data;
+      setMensaje({ texto: typeof err === 'string' ? err : err?.title ?? 'Error al agregar', tipo: 'error' });
     }
   };
 
   const handleActualizarItem = async (itemId: string, cantidad: number, nota?: string) => {
     if (!id) return;
-    await actualizarItem(id, itemId, { cantidad, nota });
-    setNotaModal(null);
-    cargar();
+    const cantidadEntera = Math.floor(cantidad);
+    if (cantidad > 0 && cantidad !== cantidadEntera) {
+      setMensaje({ texto: 'La cantidad debe ser un número entero', tipo: 'error' });
+      return;
+    }
+    try {
+      await actualizarItem(id, itemId, { cantidad: cantidadEntera, nota });
+      setNotaModal(null);
+      cargar();
+    } catch (e: any) {
+      const err = e.response?.data;
+      setMensaje({ texto: typeof err === 'string' ? err : err?.title ?? 'Error al actualizar', tipo: 'error' });
+    }
   };
 
   const handleEnviarComanda = async () => {
@@ -152,7 +168,7 @@ export default function TicketDetalle() {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white'; }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 'bold', color: '#1e293b', marginBottom: 6 }}>{p.nombre}</div>
+                  <div style={{ fontSize: 13, fontWeight: 'bold', color: '#1e293b', marginBottom: 6 }}>{p.codigo}</div>
                   <div style={{ fontSize: 14, color: '#10b981', fontWeight: 'bold' }}>S/ {p.precio.toFixed(2)}</div>
                 </button>
               ))}
@@ -183,7 +199,10 @@ export default function TicketDetalle() {
 
                 {abierto && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                    <button onClick={() => handleActualizarItem(item.id, item.cantidad - 1, item.nota)} style={{ width: 28, height: 28, background: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}>−</button>
+                    <button
+                      onClick={() => item.cantidad <= 1 ? handleActualizarItem(item.id, 0) : handleActualizarItem(item.id, item.cantidad - 1, item.nota)}
+                      style={{ width: 28, height: 28, background: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}
+                    >−</button>
                     <span style={{ fontSize: 14, fontWeight: 'bold', minWidth: 24, textAlign: 'center' }}>{item.cantidad}</span>
                     <button onClick={() => handleActualizarItem(item.id, item.cantidad + 1, item.nota)} style={{ width: 28, height: 28, background: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}>+</button>
                     <button onClick={() => setNotaModal({ itemId: item.id, nota: item.nota ?? '', cantidad: item.cantidad })} style={{ padding: '4px 8px', background: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#64748b' }}>📝 Nota</button>

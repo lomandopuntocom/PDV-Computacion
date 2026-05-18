@@ -15,6 +15,7 @@ export default function Layout() {
     { to: '/dashboard', label: '📊 Dashboard' },
     { to: '/catalogo',  label: '📦 Catálogo' },
     { to: '/stock',     label: '🏪 Stock' },
+    { to: '/compras',   label: '📥 Compras' },
     { to: '/pdv',       label: '🧾 PDV' },
     { to: '/kds',       label: '👨‍🍳 Cocina / Bar' },
   ];

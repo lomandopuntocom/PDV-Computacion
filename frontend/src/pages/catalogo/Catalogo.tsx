@@ -9,7 +9,7 @@ interface Categoria { id: string; nombre: string; }
 interface Unidad { id: string; nombre: string; }
 interface Estacion { id: string; nombre: string; }
 interface Producto {
-  id: string; nombre: string; precio: number;
+  id: string; codigo: string; nombre: string; precio: number;
   categoria: string; categoriaId: string;
   unidad: string; unidadId: string;
   estacionId: string; stockMinimo: number;
@@ -164,7 +164,7 @@ export default function Catalogo() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  {['Nombre', 'Categoría', 'Unidad', 'Precio', 'Estación', 'Estado', 'Acciones'].map(col => (
+                  {['CEN', 'Nombre', 'Categoría', 'Unidad', 'Precio', 'Estación', 'Estado', 'Acciones'].map(col => (
                     <th key={col} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, color: '#64748b', fontWeight: 600 }}>{col}</th>
                   ))}
                 </tr>
@@ -172,6 +172,7 @@ export default function Catalogo() {
               <tbody>
                 {productosFiltrados.map((p, i) => (
                   <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                    <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{p.codigo}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#1e293b' }}>{p.nombre}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: '#64748b' }}>{p.categoria}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: '#64748b' }}>{p.unidad}</td>

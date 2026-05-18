@@ -2,6 +2,7 @@ using Purchases.Api.Application.Abstractions;
 using Purchases.Api.Infrastructure.Inventory;
 using Purchases.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore; // 👈 Agregar
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,9 +39,24 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PurchasesDbContext>();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Purchases.Api");
+        logger.LogWarning(ex, "Could not apply purchases database migrations.");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // 👈 Agregar
 }
 
 app.UseCors("AllowFrontend");

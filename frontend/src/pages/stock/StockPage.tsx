@@ -4,14 +4,18 @@ import { getStock, registrarAjuste } from '../../api/stock';
 import { getProductos } from '../../api/productos';
 
 interface StockItem {
-  id: string; nombre: string; cantidad: number;
+  id: string; codigo: string; cantidad: number;
   stockMinimo: number; agotado: boolean; stockBajo: boolean;
+}
+
+interface ProductoOption {
+  id: string; codigo: string; nombre: string;
 }
 
 export default function StockPage() {
   const { empresa } = useEmpresa();
   const [stock, setStock] = useState<StockItem[]>([]);
-  const [productos, setProductos] = useState<any[]>([]);
+  const [productos, setProductos] = useState<ProductoOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
   const [ajuste, setAjuste] = useState({ productoId: '', tipo: 'ENTRADA', cantidad: 1, motivo: '' });
@@ -29,13 +33,14 @@ export default function StockPage() {
   useEffect(() => { cargar(); }, [empresa]);
 
   const handleAjuste = async () => {
-    if (!ajuste.productoId || !ajuste.motivo || ajuste.cantidad <= 0) {
-      setMensaje({ texto: 'Completa todos los campos', tipo: 'error' });
+    const cantidadEntera = Math.floor(ajuste.cantidad);
+    if (!empresa || !ajuste.productoId || !ajuste.motivo || cantidadEntera <= 0 || ajuste.cantidad !== cantidadEntera) {
+      setMensaje({ texto: 'Completa todos los campos con una cantidad entera mayor a 0', tipo: 'error' });
       return;
     }
     setGuardando(true);
     try {
-      await registrarAjuste(ajuste);
+      await registrarAjuste(empresa.id, { ...ajuste, cantidad: cantidadEntera });
       setMensaje({ texto: '✅ Ajuste registrado', tipo: 'ok' });
       setModal(false);
       setAjuste({ productoId: '', tipo: 'ENTRADA', cantidad: 1, motivo: '' });
@@ -72,7 +77,7 @@ export default function StockPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                {['Producto', 'Cantidad', 'Stock Mínimo', 'Estado'].map(col => (
+                {['CEN', 'Cantidad', 'Stock Mínimo', 'Estado'].map(col => (
                   <th key={col} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, color: '#64748b', fontWeight: 600 }}>{col}</th>
                 ))}
               </tr>
@@ -80,7 +85,7 @@ export default function StockPage() {
             <tbody>
               {stock.map((s, i) => (
                 <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                  <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#1e293b' }}>{s.nombre}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#1e293b' }}>{s.codigo}</td>
                   <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 'bold', color: '#1e293b' }}>{s.cantidad}</td>
                   <td style={{ padding: '12px 16px', fontSize: 14, color: '#64748b' }}>{s.stockMinimo}</td>
                   <td style={{ padding: '12px 16px' }}>
@@ -113,7 +118,7 @@ export default function StockPage() {
                 <label style={{ fontSize: 13, color: '#64748b', display: 'block', marginBottom: 6 }}>Producto</label>
                 <select value={ajuste.productoId} onChange={e => setAjuste(a => ({ ...a, productoId: e.target.value }))} style={inputStyle}>
                   <option value="">Selecciona...</option>
-                  {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  {productos.map(p => <option key={p.id} value={p.id}>{p.codigo}</option>)}
                 </select>
               </div>
               <div>
@@ -135,7 +140,7 @@ export default function StockPage() {
               </div>
               <div>
                 <label style={{ fontSize: 13, color: '#64748b', display: 'block', marginBottom: 6 }}>Cantidad</label>
-                <input type="number" min={1} value={ajuste.cantidad} onChange={e => setAjuste(a => ({ ...a, cantidad: Number(e.target.value) }))} style={inputStyle} />
+                <input type="number" min={1} step={1} value={ajuste.cantidad} onChange={e => setAjuste(a => ({ ...a, cantidad: Number(e.target.value) }))} style={inputStyle} />
               </div>
               <div>
                 <label style={{ fontSize: 13, color: '#64748b', display: 'block', marginBottom: 6 }}>Motivo</label>

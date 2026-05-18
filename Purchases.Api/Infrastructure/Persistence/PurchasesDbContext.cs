@@ -7,6 +7,8 @@ public sealed class PurchasesDbContext(DbContextOptions<PurchasesDbContext> opti
 {
     public DbSet<PurchaseOrder> Orders => Set<PurchaseOrder>();
     public DbSet<PurchaseOrderItem> OrderItems => Set<PurchaseOrderItem>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<InventoryCompany> InventoryCompanies => Set<InventoryCompany>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +43,27 @@ public sealed class PurchasesDbContext(DbContextOptions<PurchasesDbContext> opti
             entity.Property(x => x.ProductCen).HasColumnName("product_cen");
             entity.Property(x => x.Quantity).HasColumnName("quantity").HasPrecision(12, 2);
             entity.Property(x => x.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<Supplier>(entity =>
+        {
+            entity.ToTable("suppliers", tb => tb.ExcludeFromMigrations());
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.CompanyId, x.Code }).IsUnique();
+            entity.Property(x => x.CompanyId).HasColumnName("company_id");
+            entity.Property(x => x.Code).HasColumnName("code");
+            entity.Property(x => x.Name).HasColumnName("name");
+            entity.Property(x => x.Active).HasColumnName("active");
+            entity.Property(x => x.CreatedAt).HasColumnName("created_at");
+            entity.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<InventoryCompany>(entity =>
+        {
+            entity.ToTable("companies", "inventory", tb => tb.ExcludeFromMigrations());
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Cen).HasColumnName("cen");
+            entity.Property(x => x.Active).HasColumnName("active");
         });
     }
 }
