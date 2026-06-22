@@ -77,7 +77,7 @@ export default function StockPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                {['CEN', 'Cantidad', 'Stock Mínimo', 'Estado'].map(col => (
+                {['Código', 'Cantidad', 'Stock Mínimo', 'Estado'].map(col => (
                   <th key={col} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, color: '#64748b', fontWeight: 600 }}>{col}</th>
                 ))}
               </tr>
@@ -118,7 +118,7 @@ export default function StockPage() {
                 <label style={{ fontSize: 13, color: '#64748b', display: 'block', marginBottom: 6 }}>Producto</label>
                 <select value={ajuste.productoId} onChange={e => setAjuste(a => ({ ...a, productoId: e.target.value }))} style={inputStyle}>
                   <option value="">Selecciona...</option>
-                  {productos.map(p => <option key={p.id} value={p.id}>{p.codigo}</option>)}
+                  {productos.map(p => <option key={p.id} value={p.id}>{p.codigo ? `${p.codigo} - ` : ''}{p.nombre}</option>)}
                 </select>
               </div>
               <div>

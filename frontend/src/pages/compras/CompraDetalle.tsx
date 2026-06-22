@@ -59,8 +59,9 @@ export default function CompraDetalle() {
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'ok' | 'error' } | null>(null);
 
-  const codigoProducto = useCallback((productoId: string) => {
-    return productos.find(p => p.id === productoId)?.codigo ?? productoId.slice(0, 8).toUpperCase();
+  const nombreProducto = useCallback((productoId: string) => {
+    const p = productos.find(x => x.id === productoId);
+    return p ? (p.codigo ? `${p.codigo} - ${p.nombre}` : p.nombre) : 'Producto Desconocido';
   }, [productos]);
 
   const cargarOrden = useCallback(async () => {
@@ -189,10 +190,10 @@ export default function CompraDetalle() {
   if (loading) return <p style={{ color: '#94a3b8' }}>Cargando...</p>;
 
   const itemsVista = esNueva
-    ? lineas
+    ? lineas.map(l => ({ productoId: l.productoId, nombre: nombreProducto(l.productoId), cantidad: l.cantidad }))
     : (orden?.items ?? []).map(i => ({
         productoId: i.productoId,
-        codigo: codigoProducto(i.productoId),
+        nombre: nombreProducto(i.productoId),
         cantidad: i.cantidad,
       }));
 
@@ -207,7 +208,7 @@ export default function CompraDetalle() {
             ← Volver
           </button>
           <h1 style={{ margin: 0, fontSize: 22, color: '#1e293b' }}>
-            {esNueva ? 'Nueva compra' : `Orden CEN ${cenCorto(orden?.cen ?? '')}`}
+            {esNueva ? 'Nueva compra' : `Orden #${cenCorto(orden?.cen ?? '')}`}
           </h1>
           {!esNueva && orden && (
             <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: estiloEstado.bg, color: estiloEstado.color }}>
@@ -232,9 +233,9 @@ export default function CompraDetalle() {
                 style={inputStyle}
                 disabled={!!orden}
               >
-                <option value="">Selecciona proveedor (CEN)...</option>
+                <option value="">Selecciona proveedor...</option>
                 {proveedores.map(p => (
-                  <option key={p.codigo} value={p.codigo}>{p.codigo} — {p.nombre}</option>
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
                 ))}
               </select>
               {!mostrarNuevoProveedor ? (
@@ -277,7 +278,7 @@ export default function CompraDetalle() {
         {esNueva && !orden && (
           <>
             <input
-              placeholder="Buscar producto por CEN..."
+              placeholder="Buscar producto..."
               value={buscar}
               onChange={e => setBuscar(e.target.value)}
               style={{ ...inputStyle, marginBottom: 16 }}
@@ -308,9 +309,9 @@ export default function CompraDetalle() {
           <p style={{ color: '#94a3b8', fontSize: 14 }}>Sin productos</p>
         ) : (
           <div style={{ marginBottom: 20 }}>
-            {itemsVista.map(item => (
-              <div key={item.productoId} style={{ padding: '10px 0', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{item.codigo}</span>
+            {itemsVista.map((item, index) => (
+              <div key={`${item.productoId}-${index}`} style={{ padding: '10px 0', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{item.nombre}</span>
                 {esNueva && !orden ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <button onClick={() => actualizarCantidad(item.productoId, item.cantidad - 1)} style={{ width: 26, height: 26, border: 'none', borderRadius: 6, background: '#f1f5f9', cursor: 'pointer' }}>−</button>

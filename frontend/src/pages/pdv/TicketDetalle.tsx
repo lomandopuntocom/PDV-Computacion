@@ -169,7 +169,7 @@ export default function TicketDetalle() {
                   onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white'; }}
                 >
                   <div style={{ fontSize: 13, fontWeight: 'bold', color: '#1e293b', marginBottom: 6 }}>{p.codigo}</div>
-                  <div style={{ fontSize: 14, color: '#10b981', fontWeight: 'bold' }}>S/ {p.precio.toFixed(2)}</div>
+                  <div style={{ fontSize: 14, color: '#10b981', fontWeight: 'bold' }}>Bs. {p.precio.toFixed(2)}</div>
                 </button>
               ))}
             </div>
@@ -194,7 +194,7 @@ export default function TicketDetalle() {
                     <div style={{ fontSize: 14, fontWeight: 500, color: '#1e293b' }}>{item.producto}</div>
                     {item.nota && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>📝 {item.nota}</div>}
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 'bold', color: '#1e293b' }}>S/ {item.subtotal.toFixed(2)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 'bold', color: '#1e293b' }}>Bs. {item.subtotal.toFixed(2)}</div>
                 </div>
 
                 {abierto && (
@@ -217,20 +217,20 @@ export default function TicketDetalle() {
         {/* Totales */}
         <div style={{ borderTop: '2px solid #f1f5f9', paddingTop: 16, marginTop: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#64748b', marginBottom: 6 }}>
-            <span>Subtotal</span><span>S/ {ticket.subtotal.toFixed(2)}</span>
+            <span>Subtotal</span><span>Bs. {ticket.subtotal.toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#64748b', marginBottom: 10 }}>
             <span>IGV ({(ticket.tasaImpuesto * 100).toFixed(0)}%)</span>
-            <span>S/ {ticket.impuesto.toFixed(2)}</span>
+            <span>Bs. {ticket.impuesto.toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 'bold', color: '#1e293b' }}>
-            <span>Total</span><span>S/ {ticket.total.toFixed(2)}</span>
+            <span>Total</span><span>Bs. {ticket.total.toFixed(2)}</span>
           </div>
         </div>
 
         {ticket.pago && (
           <div style={{ marginTop: 12, padding: 12, background: '#dcfce7', borderRadius: 8, fontSize: 13, color: '#166534' }}>
-            ✅ Pagado con {ticket.pago.metodoPago} — S/ {ticket.pago.total.toFixed(2)}
+            ✅ Pagado con {ticket.pago.metodoPago} — Bs. {ticket.pago.total.toFixed(2)}
           </div>
         )}
 
@@ -271,7 +271,7 @@ export default function TicketDetalle() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
           <div style={{ background: 'white', borderRadius: 16, padding: 32, width: 380 }}>
             <h2 style={{ margin: '0 0 8px', color: '#1e293b' }}>Cobrar ticket #{ticket.numero}</h2>
-            <p style={{ margin: '0 0 24px', color: '#64748b', fontSize: 14 }}>Total: <strong>S/ {ticket.total.toFixed(2)}</strong></p>
+            <p style={{ margin: '0 0 24px', color: '#64748b', fontSize: 14 }}>Total: <strong>Bs. {ticket.total.toFixed(2)}</strong></p>
 
             <label style={{ fontSize: 13, color: '#64748b', display: 'block', marginBottom: 8 }}>Método de pago</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 24 }}>

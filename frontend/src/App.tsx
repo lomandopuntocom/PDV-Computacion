@@ -25,7 +25,6 @@ function App() {
             <Route path="/pdv/:id" element={<TicketDetalle />} />
             <Route path="/kds" element={<KDS />} />
             <Route path="/compras" element={<Compras />} />
-            <Route path="/compras/nueva" element={<CompraDetalle />} />
             <Route path="/compras/:id" element={<CompraDetalle />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />

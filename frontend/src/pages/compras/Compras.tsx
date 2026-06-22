@@ -103,7 +103,7 @@ export default function Compras() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#64748b' }}>CEN {cenCorto(o.cen)}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#64748b' }}>Orden #{cenCorto(o.cen)}</span>
                   <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: estilo.bg, color: estilo.color }}>
                     {o.estado}
                   </span>

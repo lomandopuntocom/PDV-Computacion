@@ -3,4 +3,6 @@ bin/
 obj/
 frontend/dist/
 frontend/node_modules/
+frontend/.env.example
 .tmp/
+.env

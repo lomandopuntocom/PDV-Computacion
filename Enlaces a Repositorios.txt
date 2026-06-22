@@ -1,0 +1,15 @@
+frontend:
+
+https://github.com/lomandopuntocom/ISW-312-frontend.git
+
+Inventario:
+
+https://github.com/lomandopuntocom/ISW-312-Inventory.Api.git
+
+Ventas:
+
+https://github.com/lomandopuntocom/ISW-312-Sales.Api.git
+
+Compras:
+
+https://github.com/lomandopuntocom/ISW-312-Purchases.Api.git

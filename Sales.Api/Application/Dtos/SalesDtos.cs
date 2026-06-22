@@ -1,7 +1,7 @@
 namespace Sales.Api.Application.Dtos;
 
 public sealed record PagedResultDto<T>(IReadOnlyList<T> Items, int Total, int Page, int PageSize);
-public sealed record CatalogProductDto(string Cen, string Code, string Sku, string Name, decimal Price, bool Active, bool IsOutOfStock, string? StationCode);
+public sealed record CatalogProductDto(string Cen, string Code, string Sku, string Name, decimal Price, bool Active, bool IsOutOfStock, string? StationCode, bool TrackStock = false);
 public sealed record WaiterDto(string Cen, string Name, string? Email, string? Phone);
 public sealed record TicketDto(string Cen, string TicketNumber, string Status, string? TableCode, string? WaiterCen, int ItemCount);
 public sealed record TicketItemDto(string Cen, string ProductCen, string ProductCode, decimal Quantity, decimal UnitPrice, string Status, string? Notes);
@@ -15,3 +15,9 @@ public sealed record AssignWaiterRequest(string WaiterCen);
 public sealed record UpdateKdsStatusRequest(string Status);
 public sealed record PaymentRequest(string PaymentMethod, decimal Amount, string? Reference, string? PaidBy);
 public sealed record TaxConfigurationDto(decimal TaxRate);
+
+public sealed record CreateKdsTeamContractRequest(string Name, IReadOnlyList<string> CategoryCens);
+public sealed record KdsTeamContractResponse(string TeamCen, string Name, IReadOnlyList<string> CategoryCens);
+public sealed record CreateWaiterContractRequest(string Name);
+public sealed record WaiterContractResponse(string WaiterCen, string Name);
+

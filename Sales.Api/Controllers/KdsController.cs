@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sales.Api.Application.Dtos;
+using Sales.Api.Domain.Entities;
 using Sales.Api.Infrastructure.Persistence;
 
 namespace Sales.Api.Controllers;
@@ -30,12 +31,58 @@ public sealed class KdsController(SalesDbContext db) : SalesControllerBase(db)
         var company = await FindOrCreateCompanyAsync(companyCen);
         if (company is null || !TryParseCen(teamCen, out var team)) return NotFound();
 
-        var items = await Db.CommandItems
-            .Where(x => Db.Commands.Any(c => c.Id == x.CommandId && c.CompanyCen == company.Cen && c.StationCen == team) && x.Status != "READY")
+        var commands = await Db.Commands
+            .Include(x => x.Items)
+            .Where(x => x.CompanyCen == company.Cen && x.StationCen == team && x.Items.Any(i => i.Status != "READY"))
             .OrderBy(x => x.CreatedAt)
-            .Select(x => new KdsItemDto(x.TicketItemCen.ToString(), x.ProductCen.ToString(), x.Quantity, x.Status, x.Notes))
             .ToListAsync();
 
-        return Ok(items);
+        var result = commands.Select(c => new
+        {
+            id = c.Cen.ToString(),
+            ticketId = c.TicketCen.ToString(),
+            fechaEnvio = c.SentAt ?? c.CreatedAt,
+            items = c.Items.Where(i => i.Status != "READY").Select(i => new
+            {
+                id = i.TicketItemCen.ToString(),
+                producto = i.ProductCen.ToString(),
+                cantidad = i.Quantity,
+                estado = i.Status,
+                nota = i.Notes
+            }).ToList()
+        }).ToList();
+
+        return Ok(result);
+    }
+
+    [HttpPost("teams")]
+    public async Task<IActionResult> CreateTeam(string companyCen, CreateKdsTeamContractRequest request)
+    {
+        var company = await FindOrCreateCompanyAsync(companyCen);
+        if (company is null) return NotFound();
+
+        var count = await Db.CommandStations.CountAsync(x => x.CompanyCen == company.Cen);
+        var code = $"KDS-{(count + 1):D5}";
+
+        var station = new CommandStation
+        {
+            CompanyId = company.Id,
+            CompanyCen = company.Cen,
+            Code = code,
+            Name = request.Name,
+            StationType = "KDS",
+            Active = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        Db.CommandStations.Add(station);
+        await Db.SaveChangesAsync();
+
+        return CreatedAtAction(
+            nameof(GetTeams),
+            new { companyCen },
+            new KdsTeamContractResponse(station.Cen.ToString(), station.Name, request.CategoryCens ?? Array.Empty<string>()));
     }
 }
+

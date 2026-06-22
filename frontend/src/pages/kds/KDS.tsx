@@ -2,20 +2,23 @@ import { useEffect, useState, useCallback } from 'react';
 import { useEmpresa } from '../../context/EmpresaContext';
 import { getEstaciones } from '../../api/estaciones';
 import { getKds, cambiarEstado } from '../../api/comandas';
+import { getProductos } from '../../api/productos';
 
 interface Estacion { id: string; nombre: string; }
 interface ComandaItem { id: string; producto: string; cantidad: number; nota?: string; estado: string; }
 interface Comanda { id: string; ticketId: string; fechaEnvio: string; items: ComandaItem[]; }
 
 const estadoSig: Record<string, string> = {
-  PENDIENTE: 'EN_PREPARACION',
-  EN_PREPARACION: 'LISTO',
+  PENDING: 'IN_PROGRESS',
+  SENT: 'IN_PROGRESS',
+  IN_PROGRESS: 'READY',
 };
 
 const estadoColor: Record<string, { bg: string; color: string; label: string }> = {
-  PENDIENTE:       { bg: '#fef9c3', color: '#854d0e', label: '⏳ Pendiente' },
-  EN_PREPARACION:  { bg: '#dbeafe', color: '#1e40af', label: '🔥 En preparación' },
-  LISTO:           { bg: '#dcfce7', color: '#166534', label: '✅ Listo' },
+  PENDING:       { bg: '#fef9c3', color: '#854d0e', label: '⏳ Pendiente' },
+  SENT:          { bg: '#fef9c3', color: '#854d0e', label: '⏳ Pendiente' },
+  IN_PROGRESS:  { bg: '#dbeafe', color: '#1e40af', label: '🔥 En preparación' },
+  READY:           { bg: '#dcfce7', color: '#166534', label: '✅ Listo' },
 };
 
 export default function KDS() {
@@ -24,6 +27,7 @@ export default function KDS() {
   const [estacionActiva, setEstacionActiva] = useState<string>('');
   const [comandas, setComanadas] = useState<Comanda[]>([]);
   const [loading, setLoading] = useState(false);
+  const [productos, setProductos] = useState<{ id: string; nombre: string }[]>([]);
 
   useEffect(() => {
     if (!empresa) return;
@@ -31,6 +35,7 @@ export default function KDS() {
       setEstaciones(ests);
       if (ests.length > 0) setEstacionActiva(ests[0].id);
     });
+    getProductos(empresa.id).then(setProductos);
   }, [empresa]);
 
   const cargar = useCallback(() => {
@@ -95,7 +100,7 @@ export default function KDS() {
               <div key={comanda.id} style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                 <div style={{ background: '#1e293b', padding: '12px 16px', display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}>
-                    Ticket #{comanda.ticketId.slice(-4).toUpperCase()}
+                    Ticket #{comanda.ticketId?.slice(-4)?.toUpperCase()}
                   </span>
                   <span style={{ color: '#94a3b8', fontSize: 12 }}>
                     {new Date(comanda.fechaEnvio).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
@@ -103,14 +108,15 @@ export default function KDS() {
                 </div>
                 <div style={{ padding: 16 }}>
                   {comanda.items.map(item => {
-                    const estilo = estadoColor[item.estado] ?? estadoColor.PENDIENTE;
+                    const estilo = estadoColor[item.estado] ?? estadoColor.PENDING;
                     const siguiente = estadoSig[item.estado];
+                    const nombreProducto = productos.find(p => p.id === item.producto)?.nombre ?? item.producto;
                     return (
                       <div key={item.id} style={{ padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 6 }}>
                           <div>
                             <span style={{ fontSize: 15, fontWeight: 'bold', color: '#1e293b' }}>{item.cantidad}x </span>
-                            <span style={{ fontSize: 15, color: '#1e293b' }}>{item.producto}</span>
+                            <span style={{ fontSize: 15, color: '#1e293b' }}>{nombreProducto}</span>
                             {item.nota && <div style={{ fontSize: 12, color: '#f59e0b', marginTop: 2 }}>📝 {item.nota}</div>}
                           </div>
                           <span style={{ padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: estilo.bg, color: estilo.color, whiteSpace: 'nowrap' }}>
@@ -120,11 +126,11 @@ export default function KDS() {
                         {siguiente && (
                           <button onClick={() => handleCambiarEstado(item.id, item.estado)} style={{
                             width: '100%', padding: '8px', marginTop: 4,
-                            background: siguiente === 'EN_PREPARACION' ? '#fef9c3' : '#dcfce7',
-                            color: siguiente === 'EN_PREPARACION' ? '#854d0e' : '#166534',
+                            background: siguiente === 'IN_PROGRESS' ? '#fef9c3' : '#dcfce7',
+                            color: siguiente === 'IN_PROGRESS' ? '#854d0e' : '#166534',
                             border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 'bold'
                           }}>
-                            {siguiente === 'EN_PREPARACION' ? '🔥 Iniciar preparación' : '✅ Marcar como listo'}
+                            {siguiente === 'IN_PROGRESS' ? '🔥 Iniciar preparación' : '✅ Marcar como listo'}
                           </button>
                         )}
                       </div>
