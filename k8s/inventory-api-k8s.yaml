@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: inventory-api-secrets
+  namespace: default
+type: Opaque
+data:
+  # Base64 encoded connection string: Host=postgres-db;Database=fastinventorydb;Username=admin;Password=secret_password
+  DB_CONNECTION_STRING: SG9zdD1wb3N0Z3Jlcy1kYjtEYXRhYmFzZT1mYXN0aW52ZW50b3J5ZGI7VXNlcm5hbWU9YWRtaW47UGFzc3dvcmQ9c2VjcmV0X3Bhc3N3b3Jk
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-api-deploy
+  namespace: default
+  labels:
+    app: inventory-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory-api
+  template:
+    metadata:
+      labels:
+        app: inventory-api
+    spec:
+      containers:
+      - name: inventory-api
+        image: lomandopuntocom/isw-312-inventory-api:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        env:
+        - name: DB_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: inventory-api-secrets
+              key: DB_CONNECTION_STRING
+        livenessProbe:
+          httpGet:
+            path: /swagger/index.html
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /swagger/index.html
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-api-srv
+  namespace: default
+spec:
+  selector:
+    app: inventory-api
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP

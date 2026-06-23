@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: default
+data:
+  # In Kubernetes, the frontend running in the browser will call the APIs via external endpoints.
+  # These are placeholders that would be replaced by actual public domain names or load balancer IPs.
+  VITE_INVENTORY_API_URL: "http://inventory-api-srv:8080"
+  VITE_SALES_API_URL: "http://sales-api-srv:8080"
+  VITE_PURCHASES_API_URL: "http://purchases-api-srv:8080"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deploy
+  namespace: default
+  labels:
+    app: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: lomandopuntocom/isw-312-frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+          requests:
+            cpu: "50m"
+            memory: "128Mi"
+        env:
+        - name: VITE_INVENTORY_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: VITE_INVENTORY_API_URL
+        - name: VITE_SALES_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: VITE_SALES_API_URL
+        - name: VITE_PURCHASES_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: VITE_PURCHASES_API_URL
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-srv
+  namespace: default
+spec:
+  selector:
+    app: frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30080
+  type: NodePort

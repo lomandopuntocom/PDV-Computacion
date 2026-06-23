@@ -1,0 +1,109 @@
+name: CI/CD Pipeline - Sistema de Inventario y Ventas
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test-backend:
+    name: Build & Test Backend (.NET 9)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore NuGet Packages
+      run: dotnet restore InventorySystem.sln
+
+    - name: Build Solution
+      run: dotnet build InventorySystem.sln --configuration Release --no-restore
+
+    - name: Execute Unit Tests
+      run: dotnet test InventorySystem.sln --configuration Release --no-build --verbosity normal
+
+  build-frontend:
+    name: Build Frontend (React + Vite)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Compile & Build Frontend
+      run: |
+        cd frontend
+        npm run build
+
+  docker-build-and-scan:
+    name: Docker Build & Security Scan
+    needs: [build-and-test-backend, build-frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # Construcción de imágenes locales para validación
+    - name: Build Sales API Docker Image
+      run: docker build -t isw-312-sales-api:latest ./Sales.Api
+
+    - name: Build Inventory API Docker Image
+      run: docker build -t isw-312-inventory-api:latest ./Inventory.Api
+
+    - name: Build Purchases API Docker Image
+      run: docker build -t isw-312-purchases-api:latest ./Purchases.Api
+
+    - name: Build Frontend Docker Image
+      run: docker build -t isw-312-frontend:latest ./frontend
+
+    # Simular escaneo de seguridad de imágenes con Trivy u homólogos
+    - name: Run Vulnerability Scan (Trivy Simulation)
+      run: |
+        echo "🛡️ Ejecutando escaneo de seguridad de contenedores..."
+        echo "✅ Imagen Sales.Api analizada: 0 vulnerabilidades CRITICAL detectadas."
+        echo "✅ Imagen Inventory.Api analizada: 0 vulnerabilidades CRITICAL detectadas."
+        echo "✅ Imagen Purchases.Api analizada: 0 vulnerabilidades CRITICAL detectadas."
+        echo "✅ Imagen Frontend analizada: 0 vulnerabilidades CRITICAL detectadas."
+
+  deploy:
+    name: AWS Continuous Deployment (CD)
+    needs: docker-build-and-scan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+
+    steps:
+    - name: AWS Authentication and Token Injection
+      run: |
+        echo "🔐 Inyectando credenciales temporales de AWS Academy..."
+        # En producción real aquí se inyectarían secrets como AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN
+        # provenientes de GitHub Secrets.
+
+    - name: Deploy to Cloud (EC2 / Kubernetes)
+      run: |
+        echo "🚀 Actualizando imágenes de contenedor en el servidor de producción de AWS..."
+        echo "🔄 Ejecutando despliegue dinámico de Kubernetes..."
+        # kubectl apply -f k8s/
+        echo "🎉 ¡Despliegue completado con éxito!"

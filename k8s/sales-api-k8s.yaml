@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sales-api-config
+  namespace: default
+data:
+  INVENTORY_API_URL: "http://inventory-api-srv:8080"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sales-api-secrets
+  namespace: default
+type: Opaque
+data:
+  # Base64 encoded connection string: Host=postgres-db;Database=fastinventorydb;Username=admin;Password=secret_password
+  DB_CONNECTION_STRING: SG9zdD1wb3N0Z3Jlcy1kYjtEYXRhYmFzZT1mYXN0aW52ZW50b3J5ZGI7VXNlcm5hbWU9YWRtaW47UGFzc3dvcmQ9c2VjcmV0X3Bhc3N3b3Jk
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sales-api-deploy
+  namespace: default
+  labels:
+    app: sales-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sales-api
+  template:
+    metadata:
+      labels:
+        app: sales-api
+    spec:
+      containers:
+      - name: sales-api
+        image: lomandopuntocom/isw-312-sales-api:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        env:
+        - name: INVENTORY_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: sales-api-config
+              key: INVENTORY_API_URL
+        - name: DB_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: sales-api-secrets
+              key: DB_CONNECTION_STRING
+        livenessProbe:
+          httpGet:
+            path: /api/sales/payment-methods
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /api/sales/payment-methods
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sales-api-srv
+  namespace: default
+spec:
+  selector:
+    app: sales-api
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
