@@ -1,13 +1,35 @@
 import axios from 'axios';
 
 const getBaseURL = (envVal: string | undefined, defaultVal: string, suffix: string): string => {
-  if (!envVal) return defaultVal;
-  const normalizedEnv = envVal.trim().replace(/\/+$/, '');
-  const normalizedSuffix = suffix.replace(/^\/+/, '');
-  if (!normalizedEnv.endsWith(normalizedSuffix)) {
-    return `${normalizedEnv}/${normalizedSuffix}`;
+  if (envVal) {
+    const normalizedEnv = envVal.trim().replace(/\/+$/, '');
+    const normalizedSuffix = suffix.replace(/^\/+/, '');
+    if (!normalizedEnv.endsWith(normalizedSuffix)) {
+      return `${normalizedEnv}/${normalizedSuffix}`;
+    }
+    return normalizedEnv;
   }
-  return normalizedEnv;
+
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    const protocol = window.location.protocol;
+
+    // Detect if we are running in the Kubernetes nodeport setup
+    if (port === '30080') {
+      if (suffix.includes('inventory')) {
+        return `${protocol}//${hostname}:30143/api/inventory`;
+      }
+      if (suffix.includes('sales')) {
+        return `${protocol}//${hostname}:30074/api/sales`;
+      }
+      if (suffix.includes('purchases')) {
+        return `${protocol}//${hostname}:30085/api/purchases`;
+      }
+    }
+  }
+
+  return defaultVal;
 };
 
 export const inventoryApi = axios.create({

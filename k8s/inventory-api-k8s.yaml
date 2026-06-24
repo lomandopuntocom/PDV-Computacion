@@ -33,6 +33,8 @@ spec:
             secretKeyRef:
               name: inventory-api-secrets
               key: DB_CONNECTION_STRING
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
         livenessProbe:
           httpGet:
             path: /swagger/index.html
