@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: sales-api
-        image: mokachin123/isw-312-sales-api:latest
+        image: mokachin123/pdv-sales-api:latest
         ports:
         - containerPort: 8080
         resources:
