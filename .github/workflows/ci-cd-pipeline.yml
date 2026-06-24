@@ -93,6 +93,7 @@ jobs:
     needs: docker-build-and-scan
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
 
     steps:
     - name: AWS Authentication and Token Injection
@@ -102,8 +103,12 @@ jobs:
         # provenientes de GitHub Secrets.
 
     - name: Deploy to Cloud (EC2 / Kubernetes)
-      run: |
-        echo "🚀 Actualizando imágenes de contenedor en el servidor de producción de AWS..."
-        echo "🔄 Ejecutando despliegue dinámico de Kubernetes..."
-        # kubectl apply -f k8s/
+    run: |
+      # Crea o actualiza el secreto en Kubernetes usando el secreto de GitHub
+      kubectl create secret generic sales-api-secrets \
+        --from-literal=DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
+        --dry-run=client -o yaml | kubectl apply -f -
+      
+      # Luego aplica el resto de tus archivos (Deployments, Services, HPAs)
+      kubectl apply -f k8s/
         echo "🎉 ¡Despliegue completado con éxito!"

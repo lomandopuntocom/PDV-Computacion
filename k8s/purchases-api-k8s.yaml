@@ -6,16 +6,6 @@ metadata:
 data:
   INVENTORY_API_URL: "http://inventory-api-srv:8080"
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: purchases-api-secrets
-  namespace: default
-type: Opaque
-data:
-  # Base64 encoded connection string: Host=postgres-db;Database=fastinventorydb;Username=admin;Password=secret_password
-  DB_CONNECTION_STRING: SG9zdD1wb3N0Z3Jlcy1kYjtEYXRhYmFzZT1mYXN0aW52ZW50b3J5ZGI7VXNlcm5hbWU9YWRtaW47UGFzc3dvcmQ9c2VjcmV0X3Bhc3N3b3Jk
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
