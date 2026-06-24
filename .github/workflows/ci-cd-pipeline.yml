@@ -93,28 +93,35 @@ jobs:
     needs: docker-build-and-scan
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    
 
     steps:
-    - name: AWS Authentication and Token Injection
-      run: |
-        echo "🔐 Inyectando credenciales temporales de AWS Academy..."
-        # En producción real aquí se inyectarían secrets como AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN
-        # provenientes de GitHub Secrets.
+    - name: Deploy to EC2 via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      env:
+        DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        envs: DB_CONNECTION_STRING
+        script: |
+          cd ~/PDV-Computacion
+          
+          # Descargar los últimos cambios del repositorio
+          git pull origin master
+          
+          # Crear o actualizar los secretos en Kubernetes
+          kubectl create secret generic sales-api-secrets \
+            --from-literal=DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic inventory-api-secrets \
+            --from-literal=DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic purchases-api-secrets \
+            --from-literal=DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Aplicar los manifiestos de Kubernetes
+          kubectl apply -f k8s/
+          echo "🎉 ¡Despliegue automático completado con éxito!"
 
-    - name: Deploy to Cloud (EC2 / Kubernetes)
-      run: |
-        # Crea o actualiza los secretos en Kubernetes usando el secreto de GitHub
-        kubectl create secret generic sales-api-secrets \
-          --from-literal=DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
-          --dry-run=client -o yaml | kubectl apply -f -
-        kubectl create secret generic inventory-api-secrets \
-          --from-literal=DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
-          --dry-run=client -o yaml | kubectl apply -f -
-        kubectl create secret generic purchases-api-secrets \
-          --from-literal=DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
-          --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Luego aplica el resto de tus archivos (Deployments, Services, HPAs)
-        kubectl apply -f k8s/
-        echo "🎉 ¡Despliegue completado con éxito!"
