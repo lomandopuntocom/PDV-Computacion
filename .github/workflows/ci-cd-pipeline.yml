@@ -103,12 +103,12 @@ jobs:
         # provenientes de GitHub Secrets.
 
     - name: Deploy to Cloud (EC2 / Kubernetes)
-    run: |
-      # Crea o actualiza el secreto en Kubernetes usando el secreto de GitHub
-      kubectl create secret generic sales-api-secrets \
-        --from-literal=DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
-        --dry-run=client -o yaml | kubectl apply -f -
-      
-      # Luego aplica el resto de tus archivos (Deployments, Services, HPAs)
-      kubectl apply -f k8s/
+      run: |
+        # Crea o actualiza el secreto en Kubernetes usando el secreto de GitHub
+        kubectl create secret generic sales-api-secrets \
+          --from-literal=DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
+        # Luego aplica el resto de tus archivos (Deployments, Services, HPAs)
+        kubectl apply -f k8s/
         echo "🎉 ¡Despliegue completado con éxito!"
