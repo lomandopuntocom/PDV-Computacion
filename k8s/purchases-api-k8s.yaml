@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: purchases-api
-        image: lomandopuntocom/isw-312-purchases-api:latest
+        image: mokachin123/isw-312-purchases-api:latest
         ports:
         - containerPort: 8080
         resources:
