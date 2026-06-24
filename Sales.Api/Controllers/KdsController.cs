@@ -16,11 +16,14 @@ public sealed class KdsController(SalesDbContext db) : SalesControllerBase(db)
         var company = await FindOrCreateCompanyAsync(companyCen);
         if (company is null) return NotFound();
 
-        var teams = await Db.CommandStations
+        var list = await Db.CommandStations
             .Where(x => x.CompanyCen == company.Cen && x.Active)
             .OrderBy(x => x.Name)
-            .Select(x => new KdsTeamDto(x.Cen.ToString(), x.Code, x.Name, x.StationType))
             .ToListAsync();
+
+        var teams = list
+            .Select(x => new KdsTeamDto(x.Cen.ToString(), x.Code, x.Name, x.StationType))
+            .ToList();
 
         return Ok(teams);
     }

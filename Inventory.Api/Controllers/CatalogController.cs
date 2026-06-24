@@ -32,11 +32,14 @@ public sealed class CatalogController(InventoryDbContext db) : InventoryControll
         var company = await FindCompanyAsync(companyCen);
         if (company is null) return NotFound();
 
-        var items = await Db.Categories
+        var list = await Db.Categories
             .Where(x => x.CompanyCen == company.Cen)
             .OrderBy(x => x.Name)
-            .Select(x => new CategoryDto(x.Cen.ToString(), x.Code, x.Name, x.Description, x.Active))
             .ToListAsync();
+
+        var items = list
+            .Select(x => new CategoryDto(x.Cen.ToString(), x.Code, x.Name, x.Description, x.Active))
+            .ToList();
 
         return Ok(items);
     }
@@ -89,10 +92,13 @@ public sealed class CatalogController(InventoryDbContext db) : InventoryControll
     [HttpGet("units")]
     public async Task<IActionResult> GetUnits()
     {
-        var items = await Db.UnitsMeasure
+        var list = await Db.UnitsMeasure
             .OrderBy(x => x.Name)
-            .Select(x => new UnitDto(x.Cen.ToString(), x.Code, x.Name, x.Abbreviation, x.Active))
             .ToListAsync();
+
+        var items = list
+            .Select(x => new UnitDto(x.Cen.ToString(), x.Code, x.Name, x.Abbreviation, x.Active))
+            .ToList();
 
         return Ok(items);
     }
@@ -140,11 +146,14 @@ public sealed class CatalogController(InventoryDbContext db) : InventoryControll
         var company = await FindCompanyAsync(companyCen);
         if (company is null) return NotFound();
 
-        var items = await Db.Warehouses
+        var list = await Db.Warehouses
             .Where(x => x.CompanyCen == company.Cen && x.Active)
             .OrderBy(x => x.Name)
-            .Select(x => new WarehouseDto(x.Cen.ToString(), x.Code, x.Name, x.Description, x.Active))
             .ToListAsync();
+
+        var items = list
+            .Select(x => new WarehouseDto(x.Cen.ToString(), x.Code, x.Name, x.Description, x.Active))
+            .ToList();
 
         return Ok(items);
     }

@@ -83,10 +83,12 @@ public sealed class DocumentsController(InventoryDbContext db) : InventoryContro
 
         if (doc is null) return NotFound();
 
-        var movementCens = await Db.Movements
+        var movements = await Db.Movements
             .Where(x => x.CompanyCen == company.Cen && (x.Reference == doc.DocumentNumber || x.Reference == doc.Cen.ToString()))
-            .Select(x => x.Cen.ToString())
+            .Select(x => x.Cen)
             .ToListAsync();
+
+        var movementCens = movements.Select(c => c.ToString()).ToList();
 
         var dto = new InventoryDocumentContractDto(
             doc.Cen.ToString(),

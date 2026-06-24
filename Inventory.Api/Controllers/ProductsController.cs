@@ -163,11 +163,14 @@ public sealed class ProductsController(InventoryDbContext db) : InventoryControl
         var product = await FindProductAsync(companyCen, productCen);
         if (product is null) return NotFound();
 
-        var movements = await Db.Movements
+        var list = await Db.Movements
             .Where(x => x.CompanyCen == product.CompanyCen && x.ProductCen == product.Cen)
             .OrderByDescending(x => x.CreatedAt)
-            .Select(x => new KardexMovementDto(x.Cen.ToString(), x.ProductCen.ToString(), x.Quantity, x.BalanceBefore, x.BalanceAfter, x.Reference, x.Notes, x.CreatedAt))
             .ToListAsync();
+
+        var movements = list
+            .Select(x => new KardexMovementDto(x.Cen.ToString(), x.ProductCen.ToString(), x.Quantity, x.BalanceBefore, x.BalanceAfter, x.Reference, x.Notes, x.CreatedAt))
+            .ToList();
 
         return Ok(movements);
     }

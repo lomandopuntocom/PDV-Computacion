@@ -20,10 +20,13 @@ public sealed class TicketsController(SalesDbContext db, IInventoryCatalogClient
         var query = Db.Tickets.Include(x => x.Items).Where(x => x.CompanyCen == company.Cen);
         if (!string.IsNullOrWhiteSpace(status)) query = query.Where(x => x.Status == status);
 
-        var tickets = await query
+        var list = await query
             .OrderByDescending(x => x.Id)
-            .Select(x => new TicketDto(x.Cen.ToString(), x.TicketNumber, x.Status, x.TableCode, x.VendorCen == null ? null : x.VendorCen.ToString(), x.Items.Count))
             .ToListAsync();
+
+        var tickets = list
+            .Select(x => new TicketDto(x.Cen.ToString(), x.TicketNumber, x.Status, x.TableCode, x.VendorCen == null ? null : x.VendorCen.ToString(), x.Items.Count))
+            .ToList();
 
         return Ok(tickets);
     }

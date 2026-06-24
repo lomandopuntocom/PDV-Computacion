@@ -23,21 +23,35 @@ public sealed class StockController(
         if (TryParseCen(productCen ?? string.Empty, out var product)) query = query.Where(x => x.ProductCen == product);
         if (TryParseCen(warehouseCen ?? string.Empty, out var warehouse)) query = query.Where(x => x.WarehouseCen == warehouse);
 
-        var items = await query
-            .Join(Db.Products, s => s.ProductCen, p => p.Cen, (s, p) => new StockDto(
-                s.ProductCen.ToString(),
-                p.Code,
-                s.WarehouseCen.ToString(),
-                s.Quantity,
-                s.MinQuantity,
-                s.Quantity <= s.MinQuantity))
+        var rawItems = await query
+            .Join(Db.Products, s => s.ProductCen, p => p.Cen, (s, p) => new {
+                ProductCen = s.ProductCen,
+                ProductCode = p.Code,
+                WarehouseCen = s.WarehouseCen,
+                Quantity = s.Quantity,
+                MinQuantity = s.MinQuantity
+            })
             .ToListAsync();
 
+        var items = rawItems.Select(x => new StockDto(
+            x.ProductCen.ToString(),
+            x.ProductCode,
+            x.WarehouseCen.ToString(),
+            x.Quantity,
+            x.MinQuantity,
+            x.Quantity <= x.MinQuantity))
+            .ToList();
+
         var stockedCens = items.Select(x => x.ProductCen).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var missing = await Db.Products
-            .Where(x => x.CompanyCen == company.Cen && x.TrackStock && !stockedCens.Contains(x.Cen.ToString()))
-            .Select(x => new StockDto(x.Cen.ToString(), x.Code, null, 0, 0, true))
+        
+        var missingProducts = await Db.Products
+            .Where(x => x.CompanyCen == company.Cen && x.TrackStock)
             .ToListAsync();
+
+        var missing = missingProducts
+            .Where(x => !stockedCens.Contains(x.Cen.ToString()))
+            .Select(x => new StockDto(x.Cen.ToString(), x.Code, null, 0, 0, true))
+            .ToList();
 
         return Ok(items.Concat(missing).OrderBy(x => x.ProductCode).ToList());
     }

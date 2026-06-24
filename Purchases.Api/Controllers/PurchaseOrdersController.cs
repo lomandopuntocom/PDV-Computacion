@@ -26,11 +26,14 @@ public sealed class PurchaseOrdersController(PurchasesDbContext db, IInventorySt
         query = sortDescending ? query.OrderByDescending(x => x.Date) : query.OrderBy(x => x.Date);
 
         var total = await query.CountAsync();
-        var items = await query
+        var list = await query
             .Skip((Math.Max(page, 1) - 1) * Math.Max(pageSize, 1))
             .Take(Math.Max(pageSize, 1))
-            .Select(x => new PurchaseOrderListDto(x.Cen.ToString(), x.Supplier, x.Status, x.Date, x.Items.Count))
             .ToListAsync();
+
+        var items = list
+            .Select(x => new PurchaseOrderListDto(x.Cen.ToString(), x.Supplier, x.Status, x.Date, x.Items.Count))
+            .ToList();
 
         return Ok(new PagedResultDto<PurchaseOrderListDto>(items, total, page, pageSize));
     }

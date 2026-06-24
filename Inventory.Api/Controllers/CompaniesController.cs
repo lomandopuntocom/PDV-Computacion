@@ -13,10 +13,13 @@ public sealed class CompaniesController(InventoryDbContext db) : InventoryContro
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var companies = await Db.Companies
+        var list = await Db.Companies
             .OrderBy(x => x.Name)
-            .Select(x => new CompanyDto(x.Cen.ToString(), x.Name, x.Nit, x.Active))
             .ToListAsync();
+
+        var companies = list
+            .Select(x => new CompanyDto(x.Cen.ToString(), x.Name, x.Nit, x.Active))
+            .ToList();
 
         return Ok(companies);
     }

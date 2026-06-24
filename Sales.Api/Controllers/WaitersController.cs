@@ -16,11 +16,14 @@ public sealed class WaitersController(SalesDbContext db) : SalesControllerBase(d
         var company = await FindOrCreateCompanyAsync(companyCen);
         if (company is null) return NotFound();
 
-        var waiters = await Db.Vendors
+        var list = await Db.Vendors
             .Where(x => x.CompanyCen == company.Cen && x.IsWaiter && x.Active)
             .OrderBy(x => x.Name)
-            .Select(x => new WaiterDto(x.Cen.ToString(), x.Name, x.Email, x.Phone))
             .ToListAsync();
+
+        var waiters = list
+            .Select(x => new WaiterDto(x.Cen.ToString(), x.Name, x.Email, x.Phone))
+            .ToList();
 
         return Ok(waiters);
     }
